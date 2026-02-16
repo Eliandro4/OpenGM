@@ -55,4 +55,16 @@ public static class CameraManager
         RegisterCamera(cam);
         return cam;
     }
+
+    public static void DestroyCamera(int id)
+    {
+        if (!_cameraDict.TryGetValue(id, out var cam))
+        {
+            return;
+        }
+
+        cam.ID = -1;
+
+        _cameraDict.Remove(id);
+    }
 }
