@@ -26,7 +26,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // ... clickable_
 
         // shop_get_rating
-        
+
         // ... YoYo_
 
         [GMLFunction("get_timer")]
@@ -112,15 +112,24 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // device_get_tilt_z
         // device_is_keypad_open
 
-        [GMLFunction("os_is_paused", GMLFunctionFlags.Stub)]
-        public static object os_is_paused(object?[] args)
+        [GMLFunction("os_is_paused")]
+        public static object os_is_paused(object?[] args) => !CustomWindow.Instance.IsFocused;
+
+        [GMLFunction("base64_encode")]
+        public static object base64_encode(object?[] args)
         {
-            return false;
+            var text = args[0].Conv<string>();
+            var textbytes = System.Text.Encoding.UTF8.GetBytes(text);
+            return Convert.ToBase64String(textbytes);
         }
 
-        // window_has_focus
-        // base64_encode
-        // base64_decode
+        [GMLFunction("base64_decode")]
+        public static object base64_decode(object?[] args)
+        {
+            var text = args[0].Conv<string>();
+            var textbytes = Convert.FromBase64String(text);
+            return System.Text.Encoding.UTF8.GetString(textbytes);
+        }
 
         // ...
 
