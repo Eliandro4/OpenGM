@@ -1320,7 +1320,7 @@ public static class GameConverter
                     {
                         // external .ogg
                         asset.File = $"{asset.Name}.ogg";
-                        bytes = File.ReadAllBytes(Path.Combine(Entry.DataWinFolder, asset.File));
+                        bytes = File.ReadAllBytes(Path.Combine(Entry.DataWinFolder, item.File.Content));
                     }
                 }
             }
