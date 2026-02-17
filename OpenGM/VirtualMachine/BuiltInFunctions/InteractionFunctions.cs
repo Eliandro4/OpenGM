@@ -69,23 +69,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             switch (key)
             {
                 case 0:
-                {
-                    var result = true;
-                    for (var i = 0; i <= 255; ++i)
                     {
-                        result = InputHandler.KeyDown[i] != true && result;
+                        var result = true;
+                        for (var i = 0; i <= 255; ++i)
+                        {
+                            result = InputHandler.KeyDown[i] != true && result;
+                        }
+                        return result;
                     }
-                    return result;
-                }
                 case 1:
-                {
-                    var result = false;
-                    for (var i = 0; i <= 255; ++i)
                     {
-                        result = InputHandler.KeyDown[i] || result;
+                        var result = false;
+                        for (var i = 0; i <= 255; ++i)
+                        {
+                            result = InputHandler.KeyDown[i] || result;
+                        }
+                        return result;
                     }
-                    return result;
-                }
                 case > 255:
                     return false;
                 default:
@@ -102,23 +102,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             switch (key)
             {
                 case 0:
-                {
-                    var result = true;
-                    for (var i = 0; i <= 255; ++i)
                     {
-                        result = InputHandler.KeyPressed[i] != true && result;
+                        var result = true;
+                        for (var i = 0; i <= 255; ++i)
+                        {
+                            result = InputHandler.KeyPressed[i] != true && result;
+                        }
+                        return result;
                     }
-                    return result;
-                }
                 case 1:
-                {
-                    var result = false;
-                    for (var i = 0; i <= 255; ++i)
                     {
-                        result = InputHandler.KeyPressed[i] || result;
+                        var result = false;
+                        for (var i = 0; i <= 255; ++i)
+                        {
+                            result = InputHandler.KeyPressed[i] || result;
+                        }
+                        return result;
                     }
-                    return result;
-                }
                 case > 255:
                     return false;
                 default:
@@ -135,23 +135,23 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             switch (key)
             {
                 case 0:
-                {
-                    var result = true;
-                    for (var i = 0; i <= 255; ++i)
                     {
-                        result = InputHandler.KeyReleased[i] != true && result;
+                        var result = true;
+                        for (var i = 0; i <= 255; ++i)
+                        {
+                            result = InputHandler.KeyReleased[i] != true && result;
+                        }
+                        return result;
                     }
-                    return result;
-                }
                 case 1:
-                {
-                    var result = false;
-                    for (var i = 0; i <= 255; ++i)
                     {
-                        result = InputHandler.KeyReleased[i] || result;
+                        var result = false;
+                        for (var i = 0; i <= 255; ++i)
+                        {
+                            result = InputHandler.KeyReleased[i] || result;
+                        }
+                        return result;
                     }
-                    return result;
-                }
                 case > 255:
                     return false;
                 default:
@@ -209,8 +209,47 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // keyboard_virtual_hide
         // keyboard_virtual_status
         // keyboard_virtual_height
-        // keyboard_clear
-        // mouse_clear
+
+        [GMLFunction("keyboard_clear")]
+        public static object? keyboard_clear(object?[] args)
+        {
+            var key = args[0].Conv<int>();
+
+            if (key > 0 && key < 256)
+            {
+                InputHandler.KeyDown[key] = false;
+                InputHandler.KeyPressed[key] = false;
+                InputHandler.KeyReleased[key] = false;
+                InputHandler.KeySuppressed[key] = true;
+            }
+
+            return null;
+        }
+
+        [GMLFunction("mouse_clear")]
+        public static object? mouse_clear(object?[] args)
+        {
+            var button = args[0].Conv<int>();
+
+            if (button == -1)
+            {
+                for (var i = 0; i < 5; i++)
+                {
+                    InputHandler.MouseDown[i] = false;
+                    InputHandler.MousePressed[i] = false;
+                    InputHandler.MouseReleased[i] = false;
+                }
+            }
+            else if (button > 0 && button <= 5)
+            {
+                var index = button - 1;
+                InputHandler.MouseDown[index] = false;
+                InputHandler.MousePressed[index] = false;
+                InputHandler.MouseReleased[index] = false;
+            }
+
+            return null;
+        }
 
         [GMLFunction("io_clear")]
         public static object? io_clear(object?[] args)
@@ -220,6 +259,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             InputHandler.KeyDown = new bool[256];
             InputHandler.KeyPressed = new bool[256];
             InputHandler.KeyReleased = new bool[256];
+            InputHandler.KeySuppressed = new bool[256];
 
             InputHandler.MouseDown = new bool[5];
             InputHandler.MousePressed = new bool[5];

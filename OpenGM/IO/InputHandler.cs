@@ -23,6 +23,7 @@ public class InputHandler
     public static bool[] KeyDown = new bool[256];
     public static bool[] KeyPressed = new bool[256];
     public static bool[] KeyReleased = new bool[256];
+    public static bool[] KeySuppressed = new bool[256];
 
     public static bool[] MouseDown = new bool[5];
     public static bool[] MousePressed = new bool[5];
@@ -219,6 +220,18 @@ public class InputHandler
 
         void CalculateKey(int vk, bool isDown)
         {
+            if (KeySuppressed[vk])
+            {
+                if (isDown)
+                {
+                    isDown = false;
+                }
+                else
+                {
+                    KeySuppressed[vk] = false;
+                }
+            }
+
             var wasDown = KeyDown[vk];
 
             KeyPressed[vk] = isDown && !wasDown;
@@ -300,12 +313,12 @@ public class InputHandler
                 foreach (var element in layer.ElementsToDraw)
                 {
                     var str = $"     - {element.GetType().Name} ({element.instanceId})";
-                    if (element is GMSprite sprite) 
+                    if (element is GMSprite sprite)
                     {
 
                         str += $" [{sprite.X}, {sprite.Y}]";
                     }
-                    else if (element is GMBackground bg) 
+                    else if (element is GMBackground bg)
                     {
 
                         str += $" Index:{bg.Element.Index} Frame:{bg.FrameIndex}";
