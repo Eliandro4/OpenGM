@@ -7,8 +7,58 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions;
 public static class GameFunctions
 {
     // move_random
-    // place_free
-    // place_empty
+
+    [GMLFunction("place_free", GMLFunctionFlags.Stub)]
+    public static object place_free(object?[] args)
+    {
+        //TODO: DO NOT TELEPORT
+        var x = args[0].Conv<double>();
+        var y = args[1].Conv<double>();
+
+        foreach (var inst in InstanceManager.instances)
+        {
+            if (inst.Value == VMExecutor.Self.GMSelf)
+                continue;
+
+            if (!inst.Value.Active || inst.Value.Marked || !inst.Value.Definition.solid)
+                continue;
+
+            var result = CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, inst.Key);
+            if (result >= 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    [GMLFunction("place_empty", GMLFunctionFlags.Stub)]
+    public static object place_empty(object?[] args)
+    {
+        //TODO:
+        // DO NOT TELEPORT
+        // SUPPORT THE OPTIONAL ARGUMENT object_id
+        var x = args[0].Conv<double>();
+        var y = args[1].Conv<double>();
+
+        foreach (var inst in InstanceManager.instances)
+        {
+            if (inst.Value == VMExecutor.Self.GMSelf)
+                continue;
+
+            if (!inst.Value.Active || inst.Value.Marked)
+                continue;
+
+            var result = CollisionManager.Command_InstancePlace(VMExecutor.Self.GMSelf, x, y, inst.Key);
+            if (result >= 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     [GMLFunction("place_meeting")]
     public static object place_meeting(object?[] args)
