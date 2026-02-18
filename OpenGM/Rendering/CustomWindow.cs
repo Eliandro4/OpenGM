@@ -14,7 +14,7 @@ public class CustomWindow : GameWindow
 
     public static List<GMBaseJob> DebugJobs = new();
 
-    #if DEBUG_EXTRA
+#if DEBUG_EXTRA
     private static readonly DebugProc DebugMessageDelegate = OnDebugMessage; // prevents gc
     private static void OnDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr param)
     {
@@ -22,12 +22,12 @@ public class CustomWindow : GameWindow
         if (type == DebugType.DebugTypeError) throw new Exception($"GL error from {source}: {message}");
         DebugLog.LogInfo($"GL message from {source}: {message}");
     }
-    #endif
+#endif
 
     public CustomWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
-        #if DEBUG_EXTRA
+#if DEBUG_EXTRA
         // https://opentk.net/learn/appendix_opengl/debug_callback.html
         GL.Enable(EnableCap.DebugOutput);
         GL.Enable(EnableCap.DebugOutputSynchronous); // for callstack
@@ -37,12 +37,12 @@ public class CustomWindow : GameWindow
             GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePushGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
             GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DebugTypePopGroup, DebugSeverityControl.DontCare, 0, (int*)null, false);
         }
-        #endif
+#endif
 
         GLFWProvider.SetErrorCallback((code, msg) => DebugLog.LogError($"GLFW error {code}: {msg}"));
-        
+
         Instance = this;
-        
+
         DebugLog.LogInfo($"-- CustomWindow .ctor --");
         DebugLog.LogInfo($"  Version: {nativeWindowSettings.API} {nativeWindowSettings.APIVersion}");
         DebugLog.LogInfo($"  Profile: {nativeWindowSettings.Profile}");
@@ -55,9 +55,9 @@ public class CustomWindow : GameWindow
         // https://github.com/YoYoGames/GameMaker-HTML5/blob/develop/scripts/_GameMaker.js#L721
         SurfaceManager.ApplicationWidth = FramebufferSize.X;
         SurfaceManager.ApplicationHeight = FramebufferSize.Y;
-        
+
         GraphicsManager.Init();
-        
+
         /*
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>
         {
@@ -70,7 +70,7 @@ public class CustomWindow : GameWindow
         GL.Enable(EnableCap.Texture2D); // always allow a texture to be drawn. does nothing if no texture is bound
         */
         GL.Enable(EnableCap.Blend); // always allow blending
-        
+
         // bm_normal
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         GL.BlendEquation(BlendEquationMode.FuncAdd);
@@ -84,6 +84,7 @@ public class CustomWindow : GameWindow
 
         InputHandler.UpdateMouseState(MouseState);
         InputHandler.UpdateKeyboardState(KeyboardState);
+        InputHandler.UpdateGamepadState(JoystickStates);
 
         DrawManager.FixedUpdate();
         AudioManager.Update();
@@ -310,7 +311,7 @@ public class CustomWindow : GameWindow
         drawAreaTopRight = drawAreaTopRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         drawAreaBottomRight = drawAreaBottomRight.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
         drawAreaBottomLeft = drawAreaBottomLeft.RotateAroundPoint(spriteJob.screenPos, spriteJob.angle);
-        
+
         /*
         GL.TexCoord2(topLeftUV);
         GL.Vertex2(drawAreaTopLeft);
@@ -460,7 +461,7 @@ public class CustomWindow : GameWindow
             new(new(lineJob.x2 - height, lineJob.y2 + width, GraphicsManager.GR_Depth), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x2 + height, lineJob.y2 - width, GraphicsManager.GR_Depth), lineJob.col2, Vector2.Zero),
             new(new(lineJob.x1 + height, lineJob.y1 - width, GraphicsManager.GR_Depth), lineJob.col1, Vector2.Zero),
-        ]); 
+        ]);
     }
 
     public static void Draw(GMLinesJob linesJob)
