@@ -57,6 +57,7 @@ public class CustomWindow : GameWindow
         SurfaceManager.ApplicationHeight = FramebufferSize.Y;
 
         GraphicsManager.Init();
+        InputHandler.InitializeGamepadMappings();
 
         /*
         GL.DebugMessageCallback((source, type, id, severity, length, messagePtr, param) =>

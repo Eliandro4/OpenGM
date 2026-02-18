@@ -48,6 +48,22 @@ public class InputHandler
     public static int[,] GamepadHatValues = new int[MaxGamepads, 4];
     public static string[] GamepadDescriptions = new string[MaxGamepads];
 
+    private static readonly int[] GamepadMapping = { 0, 1, 2, 3, 4, 5, 9, 8, -1, 11, 12, 13, 14, 15, 16 };
+
+    public static void InitializeGamepadMappings()
+    {
+        if (File.Exists("gamecontrollerdb.txt"))
+        {
+            var mappings = File.ReadAllText("gamecontrollerdb.txt");
+            GLFW.UpdateGamepadMappings(mappings);
+            DebugLog.LogInfo("Gamepad mappings loaded from gamecontrollerdb.txt");
+        }
+        else
+        {
+            DebugLog.LogWarning("gamecontrollerdb.txt not found. Gamepad mappings not loaded.");
+        }
+    }
+
     public static void UpdateMouseState(MouseState state)
     {
         var mouseButtons = new[] { MouseButton.Left, MouseButton.Right, MouseButton.Middle, MouseButton.Button1, MouseButton.Button2 };
@@ -105,42 +121,82 @@ public class InputHandler
             GamepadConnected[device] = true;
             GamepadDescriptions[device] = name;
 
-            // Update buttons
-            for (var b = 0; b < joyState.ButtonCount; b++)
+            var isGamepad = GLFW.JoystickIsGamepad(device);
+            if (isGamepad)
             {
-                var isDown = b < joyState.ButtonCount && joyState.IsButtonDown(b);
-                if (joyState.IsButtonDown(b)) Console.WriteLine($"Button {b} down");
-
-                var wasDown = GamepadButtonDown[device, b];
-
-                GamepadButtonPressed[device, b] = isDown && !wasDown;
-                GamepadButtonReleased[device, b] = !isDown && wasDown;
-                GamepadButtonDown[device, b] = isDown;
-            }
-
-            // Update axes (0=LH, 1=LV, 2=RH, 3=RV)
-            for (var a = 0; a < 4; a++)
-            {
-                if (a < joyState.AxisCount)
+                if (GLFW.GetGamepadState(device, out var state))
                 {
-                    var value = joyState.GetAxis(a);
-                    var deadzone = GamepadAxisDeadzone[device];
-                    if (Math.Abs(value) < deadzone)
+                    unsafe
                     {
-                        value = 0;
+                        // Mapping from GLFW button index to internal OpenGM index
+                        // GLFW Buttons: 0:A, 1:B, 2:X, 3:Y, 4:LB, 5:RB, 6:Back, 7:Start, 8:Guide, 9:LS, 10:RS, 11:Up, 12:Right, 13:Down, 14:Left
+                        // OpenGM internal: 0:gp_face1, 1:gp_face2, 2:gp_face3, 3:gp_face4, 4:gp_shoulderl, 5:gp_shoulderr, 8:gp_start, 9:gp_select, 11:gp_stickl, 12:gp_stickr, 13:gp_padu, 14:gp_padr, 15:gp_padd, 16:gp_padl
+
+                        for (int i = 0; i < 15; i++)
+                        {
+                            int internalIndex = GamepadMapping[i];
+                            if (internalIndex == -1) continue;
+
+                            var isDown = state.Buttons[i] == (byte)InputAction.Press;
+                            var wasDown = GamepadButtonDown[device, internalIndex];
+                            GamepadButtonPressed[device, internalIndex] = isDown && !wasDown;
+                            GamepadButtonReleased[device, internalIndex] = !isDown && wasDown;
+                            GamepadButtonDown[device, internalIndex] = isDown;
+                        }
+
+                        GamepadAxisValues[device, 0] = state.Axes[0]; // LX
+                        GamepadAxisValues[device, 1] = state.Axes[1]; // LY
+                        GamepadAxisValues[device, 2] = state.Axes[2]; // RX
+                        GamepadAxisValues[device, 3] = state.Axes[3]; // RY
                     }
-                    GamepadAxisValues[device, a] = value;
-                }
-                else
-                {
-                    GamepadAxisValues[device, a] = 0;
+
+                    // Deadzone handling for axes
+                    for (var a = 0; a < 4; a++)
+                    {
+                        if (Math.Abs(GamepadAxisValues[device, a]) < GamepadAxisDeadzone[device])
+                        {
+                            GamepadAxisValues[device, a] = 0;
+                        }
+                    }
                 }
             }
-
-            // Update hats
-            for (var h = 0; h < Math.Min(joyState.HatCount, 4); h++)
+            else
             {
-                GamepadHatValues[device, h] = (int)joyState.GetHat(h);
+                // Update buttons (Legacy Joystick)
+                for (var b = 0; b < joyState.ButtonCount; b++)
+                {
+                    var isDown = b < joyState.ButtonCount && joyState.IsButtonDown(b);
+                    var wasDown = GamepadButtonDown[device, b];
+
+                    GamepadButtonPressed[device, b] = isDown && !wasDown;
+                    GamepadButtonReleased[device, b] = !isDown && wasDown;
+                    GamepadButtonDown[device, b] = isDown;
+                }
+
+                // Update axes (Legacy Joystick)
+                for (var a = 0; a < 4; a++)
+                {
+                    if (a < joyState.AxisCount)
+                    {
+                        var value = joyState.GetAxis(a);
+                        var deadzone = GamepadAxisDeadzone[device];
+                        if (Math.Abs(value) < deadzone)
+                        {
+                            value = 0;
+                        }
+                        GamepadAxisValues[device, a] = value;
+                    }
+                    else
+                    {
+                        GamepadAxisValues[device, a] = 0;
+                    }
+                }
+
+                // Update hats (Legacy Joystick)
+                for (var h = 0; h < Math.Min(joyState.HatCount, 4); h++)
+                {
+                    GamepadHatValues[device, h] = (int)joyState.GetHat(h);
+                }
             }
         }
     }
