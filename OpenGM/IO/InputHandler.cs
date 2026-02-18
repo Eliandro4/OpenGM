@@ -147,12 +147,6 @@ public class InputHandler
     {
         return keyid switch
         {
-            /*
-            32781 => hat_up,
-            32782 => hat_down,
-            32783 => hat_left,
-            32784 => hat_right,
-            */
             _ => keyid - 32769
         };
     }
