@@ -36,13 +36,13 @@ public class InputHandler
 
     // Gamepad state
     public const int MaxGamepads = 12;
-    public const int MaxGamepadButtons = 20; // gp_face1 through gp_padr
+    public const int MaxGamepadButtons = 20; // gp_face1 through gp_padr and safety margin
     public const int GamepadAxisBase = 32785; // gp_axislh
 
     public static bool[] GamepadConnected = new bool[MaxGamepads];
-    public static bool[,] GamepadButtonDown = new bool[MaxGamepads, MaxGamepadButtons];
-    public static bool[,] GamepadButtonPressed = new bool[MaxGamepads, MaxGamepadButtons];
-    public static bool[,] GamepadButtonReleased = new bool[MaxGamepads, MaxGamepadButtons];
+    public static bool[][] GamepadButtonDown = new bool[MaxGamepads][];
+    public static bool[][] GamepadButtonPressed = new bool[MaxGamepads][];
+    public static bool[][] GamepadButtonReleased = new bool[MaxGamepads][];
     public static float[,] GamepadAxisValues = new float[MaxGamepads, 4];
     public static float[] GamepadAxisDeadzone = { 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f };
     public static int[,] GamepadHatValues = new int[MaxGamepads, 4];
@@ -97,11 +97,11 @@ public class InputHandler
                     // Device disconnected - clear state
                     GamepadConnected[device] = false;
                     GamepadDescriptions[device] = "";
-                    for (var b = 0; b < MaxGamepadButtons; b++)
+                    for (var b = 0; b < GamepadButtonDown[device].Length; b++)
                     {
-                        GamepadButtonDown[device, b] = false;
-                        GamepadButtonPressed[device, b] = false;
-                        GamepadButtonReleased[device, b] = false;
+                        GamepadButtonDown[device][b] = false;
+                        GamepadButtonPressed[device][b] = false;
+                        GamepadButtonReleased[device][b] = false;
                     }
                     for (var a = 0; a < 4; a++)
                     {
@@ -116,6 +116,10 @@ public class InputHandler
             if (!GamepadConnected[device])
             {
                 DebugLog.LogInfo($"Gamepad {device} connected: {name} (Buttons: {joyState.ButtonCount}, Axes: {joyState.AxisCount}, Hats: {joyState.HatCount})");
+                var buttonArraySize = Math.Max(joyState.ButtonCount, MaxGamepadButtons);
+                GamepadButtonDown[device] = new bool[buttonArraySize];
+                GamepadButtonPressed[device] = new bool[buttonArraySize];
+                GamepadButtonReleased[device] = new bool[buttonArraySize];
             }
 
             GamepadConnected[device] = true;
@@ -138,10 +142,10 @@ public class InputHandler
                             if (internalIndex == -1) continue;
 
                             var isDown = state.Buttons[i] == (byte)InputAction.Press;
-                            var wasDown = GamepadButtonDown[device, internalIndex];
-                            GamepadButtonPressed[device, internalIndex] = isDown && !wasDown;
-                            GamepadButtonReleased[device, internalIndex] = !isDown && wasDown;
-                            GamepadButtonDown[device, internalIndex] = isDown;
+                            var wasDown = GamepadButtonDown[device][internalIndex];
+                            GamepadButtonPressed[device][internalIndex] = isDown && !wasDown;
+                            GamepadButtonReleased[device][internalIndex] = !isDown && wasDown;
+                            GamepadButtonDown[device][internalIndex] = isDown;
                         }
 
                         GamepadAxisValues[device, 0] = state.Axes[0]; // LX
@@ -166,11 +170,11 @@ public class InputHandler
                 for (var b = 0; b < joyState.ButtonCount; b++)
                 {
                     var isDown = b < joyState.ButtonCount && joyState.IsButtonDown(b);
-                    var wasDown = GamepadButtonDown[device, b];
+                    var wasDown = GamepadButtonDown[device][b];
 
-                    GamepadButtonPressed[device, b] = isDown && !wasDown;
-                    GamepadButtonReleased[device, b] = !isDown && wasDown;
-                    GamepadButtonDown[device, b] = isDown;
+                    GamepadButtonPressed[device][b] = isDown && !wasDown;
+                    GamepadButtonReleased[device][b] = !isDown && wasDown;
+                    GamepadButtonDown[device][b] = isDown;
                 }
 
                 // Update axes (Legacy Joystick)

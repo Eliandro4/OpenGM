@@ -87,7 +87,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             {
                 return false;
             }
-            return InputHandler.GamepadButtonDown[device, index];
+            return InputHandler.GamepadButtonDown[device][index];
         }
 
         [GMLFunction("gamepad_button_check_pressed")]
@@ -103,7 +103,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return false;
             }
 
-            return InputHandler.GamepadButtonPressed[device, index];
+            return InputHandler.GamepadButtonPressed[device][index];
         }
 
         [GMLFunction("gamepad_button_check_released")]
@@ -119,7 +119,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return false;
             }
 
-            return InputHandler.GamepadButtonReleased[device, index];
+            return InputHandler.GamepadButtonReleased[device][index];
         }
 
         [GMLFunction("gamepad_button_value")]
@@ -135,7 +135,7 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
                 return 0.0;
             }
 
-            return InputHandler.GamepadButtonDown[device, index] ? 1.0 : 0.0;
+            return InputHandler.GamepadButtonDown[device][index] ? 1.0 : 0.0;
         }
 
         [GMLFunction("gamepad_axis_count")]
@@ -180,7 +180,19 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return InputHandler.GamepadHatValues[device, hat];
         }
 
-        // gamepad_hat_count
+        [GMLFunction("gamepad_hat_count")]
+        public static object gamepad_hat_count(object?[] args)
+        {
+            var device = args[0].Conv<int>();
+
+            if (device < 0 || device >= InputHandler.MaxGamepads)
+            {
+                return 0;
+            }
+
+            return 4;
+        }
+
         // gamepad_remove_mapping
         // gamepad_test_mapping
         // gamepad_get_mapping
