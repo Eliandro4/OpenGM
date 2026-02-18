@@ -36,7 +36,7 @@ public class InputHandler
 
     // Gamepad state
     public const int MaxGamepads = 12;
-    public const int MaxGamepadButtons = 16; // gp_face1 through gp_padr
+    public const int MaxGamepadButtons = 20; // gp_face1 through gp_padr
     public const int GamepadAxisBase = 32785; // gp_axislh
 
     public static bool[] GamepadConnected = new bool[MaxGamepads];
@@ -106,9 +106,11 @@ public class InputHandler
             GamepadDescriptions[device] = name;
 
             // Update buttons
-            for (var b = 0; b < MaxGamepadButtons; b++)
+            for (var b = 0; b < joyState.ButtonCount; b++)
             {
                 var isDown = b < joyState.ButtonCount && joyState.IsButtonDown(b);
+                if (joyState.IsButtonDown(b)) Console.WriteLine($"Button {b} down");
+
                 var wasDown = GamepadButtonDown[device, b];
 
                 GamepadButtonPressed[device, b] = isDown && !wasDown;
@@ -147,6 +149,20 @@ public class InputHandler
     {
         return keyid switch
         {
+            32769 => 0,  // gp_face1
+            32770 => 1,  // gp_face2
+            32771 => 2,  // gp_face3
+            32772 => 3,  // gp_face4
+            32773 => 4,  // gp_shoulderl
+            32774 => 5,  // gp_shoulderr
+            32777 => 9,  // gp_select
+            32778 => 8,  // gp_start
+            32779 => 11,  // gp_stickl
+            32780 => 12, // gp_stickr
+            32781 => 13, // gp_padu
+            32782 => 15, // gp_padd
+            32783 => 16, // gp_padl
+            32784 => 14, // gp_padr
             _ => keyid - 32769
         };
     }
