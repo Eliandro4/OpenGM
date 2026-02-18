@@ -55,4 +55,9 @@ public static class CameraManager
         RegisterCamera(cam);
         return cam;
     }
+
+    public static void DestroyCamera(int camid)
+    {
+        return;
+    }
 }
