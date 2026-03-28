@@ -238,7 +238,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return new double[] { ret.X, ret.Y, ret.Z };
         }
 
-        // draw_texture_flush
+        [GMLFunction("draw_texture_flush", GMLFunctionFlags.Stub)]
+        public static object? draw_texture_flush(object?[] args)
+        {
+            return null;
+        }
 
         [GMLFunction("draw_flush", GMLFunctionFlags.Stub)]
         public static object? draw_flush(object?[] args)
