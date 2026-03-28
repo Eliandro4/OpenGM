@@ -119,6 +119,25 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         // @@GlobalScope@@
         // @@NewObject@@
         // @@NewProperty@@
-        // @@CopyStatic@@
+
+        [GMLFunction("@@SetStatic@@")]
+        public static object? SetStatic(object?[] args)
+        {
+            var currentFunc = VMExecutor.Call.Function;
+            if (currentFunc != null)
+            {
+                currentFunc.HasStaticInitRan = true;
+            }
+
+            return null;
+        }
+
+        [GMLFunction("@@CopyStatic@@")]
+        public static object? CopyStatic(object?[] args)
+        {
+            // args[0] is the child count
+            // TODO: implement proper static variable copying for constructor inheritance
+            return null;
+        }
     }
 }
