@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenTK.Mathematics;
 
@@ -627,7 +627,8 @@ public static class GameFunctions
 
         if (layer == null)
         {
-            throw new Exception($"instance_create_layer - Layer {layer_id} not found!");
+            DebugLog.LogError($"instance_create_layer - Layer {layer_id} not found!");
+            return GMConstants.noone;
         }
 
         return InstanceManager.instance_create_layer(x, y, layer, obj, var_struct);

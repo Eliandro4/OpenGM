@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using System.Collections;
 
@@ -30,24 +30,18 @@ public static partial class VMExecutor
 
     public static void PushBuiltin(string varName)
     {
-        if (VariableResolver.BuiltInVariables.ContainsKey(varName))
+        if (VariableResolver.BuiltInVariables.TryGetValue(varName, out var builtin_gettersetter))
         {
-            var value = VariableResolver.BuiltInVariables[varName].getter();
-            Call.Stack.Push(value, VMType.v);
+            Call.Stack.Push(builtin_gettersetter.getter(), VMType.v);
         }
-        else if (VariableResolver.BuiltInSelfVariables.ContainsKey(varName))
+        else if (VariableResolver.BuiltInSelfVariables.TryGetValue(varName, out var selfbuiltin_gettersetter))
         {
-            var value = VariableResolver.BuiltInSelfVariables[varName].getter(Self.GMSelf);
-            Call.Stack.Push(value, VMType.v);
-        }
-        else if (Self.Self.SelfVariables.ContainsKey(varName))
-        {
-            var value = Self.Self.SelfVariables[varName];
-            Call.Stack.Push(value, VMType.v);
+            Call.Stack.Push(selfbuiltin_gettersetter.getter(Self.GMSelf), VMType.v);
         }
         else
         {
-            throw new NotImplementedException();
+            // Fallback to self
+            PushSelf(Self.Self, varName);
         }
     }
 
@@ -65,7 +59,8 @@ public static partial class VMExecutor
         }
         else
         {
-            throw new NotImplementedException();
+            // Fallback to self
+            PushSelfArrayIndex(Self.Self, varName, index);
         }
     }
 
@@ -164,9 +159,21 @@ public static partial class VMExecutor
 
         if (inst == null)
         {
-            DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
-            DebugLog.PrintCallStack(DebugLog.LogType.Error);
-            DebugLog.PrintInstances(DebugLog.LogType.Error);
+            var id = item.Conv<int>();
+            var isObjectAssetId = id < GMConstants.FIRST_INSTANCE_ID && id >= 0;
+
+            if (isObjectAssetId)
+            {
+                // In GML, accessing a variable of an object with no instances returns undefined.
+                // We should log a warning instead of a fatal error.
+                DebugLog.LogWarning($"Tried to push variable {varName} from object asset {item}, but no instances exist. Pushing undefined.");
+            }
+            else
+            {
+                DebugLog.LogError($"Tried to push variable {varName} from {item} ({item?.GetType().Name ?? "null"}), which isn't a valid self!!");
+                DebugLog.PrintCallStack(DebugLog.LogType.Error);
+                DebugLog.PrintInstances(DebugLog.LogType.Error);
+            }
 
             Call.Stack.Push(null, VMType.v);
             return;

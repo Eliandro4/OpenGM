@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenGM.Loading;
 using OpenGM.SerializedFiles;
 using System.Collections;
@@ -802,9 +802,9 @@ public static partial class VMExecutor
         {
             return self;
         }
-        else if (value is int or long or short)
+        else if (value is int or long or short or double or float)
         {
-            return InstanceManager.Find((int)value, all: true);
+            return InstanceManager.Find(value.Conv<int>(), all: true);
         }
 
         throw new ArgumentException($"Don't know how to fetch IStackContextSelf for {value} ({value.GetType().FullName})");
@@ -902,9 +902,9 @@ public static partial class VMExecutor
 
         if (@this is null)
         {
-            // Bool is the only thing that undefined can be converted to
-            // (YYGetBool is the only function that checks for 0x5)
             if (type == typeof(bool)) return false;
+            if (type == typeof(string)) return "undefined";
+            if (type == typeof(double) || type == typeof(float) || type == typeof(int) || type == typeof(long) || type == typeof(short)) return 0;
 
             throw new ArgumentException($"Trying to convert undefined to {type}! Current script:{CallStack.First().CodeName}");
         }

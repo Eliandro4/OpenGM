@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenGM.SerializedFiles;
 using System.Collections;
 
@@ -166,7 +166,8 @@ public static partial class VMExecutor
         }
         else
         {
-            throw new ArgumentException($"No such builtin array \"{varName}\"");
+            // fallback to self
+            PopToSelfArray(Self.Self, varName, index, value);
         }
     }
 

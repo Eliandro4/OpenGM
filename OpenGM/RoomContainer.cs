@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenGM.VirtualMachine;
@@ -28,12 +28,35 @@ public class RoomContainer
     {
         if (layer_id is string s)
         {
-            return Layers.FirstOrDefault(x => x.Value.Name == s).Value;
+            // Exact match
+            var layer = Layers.Values.FirstOrDefault(x => x.Name == s);
+            if (layer != null)
+            {
+                return layer;
+            }
+
+            // Case-insensitive match
+            layer = Layers.Values.FirstOrDefault(x => x.Name.Equals(s, StringComparison.OrdinalIgnoreCase));
+            if (layer != null)
+            {
+                DebugLog.LogWarning($"Layer \"{s}\" not found, but found case-insensitive match \"{layer.Name}\". Using that.");
+                return layer;
+            }
+
+            // Prefix match (e.g. "Mouse" matching "Mouse1")
+            layer = Layers.Values.FirstOrDefault(x => x.Name.StartsWith(s, StringComparison.OrdinalIgnoreCase));
+            if (layer != null)
+            {
+                DebugLog.LogWarning($"Layer \"{s}\" not found, but found prefix match \"{layer.Name}\". Using that.");
+                return layer;
+            }
+
+            return null;
         }
         else
         {
             var id = layer_id.Conv<int>();
-            return RoomManager.CurrentRoom.Layers.TryGetValue(id, out var value) ? value : null;
+            return Layers.TryGetValue(id, out var value) ? value : null;
         }
     }
 
