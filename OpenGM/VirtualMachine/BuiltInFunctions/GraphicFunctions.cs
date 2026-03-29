@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenGM.Rendering;
 using OpenGM.SerializedFiles;
 using OpenTK.Graphics.OpenGL4;
@@ -352,6 +352,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? window_views_mouse_get_x(object?[] args)
         {
             var mouseX = InputHandler.MousePos.X;
+            var windowWidth = window_get_width([]).Conv<float>();
+            var appWidth = (float)SurfaceManager.ApplicationWidth;
+
+            mouseX *= appWidth / windowWidth;
+
             var view = RoomManager.CurrentRoom.Views[0];
             var portX = view.PortPosition.X;
             var portWidth = view.PortSize.X;
@@ -364,6 +369,11 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
         public static object? window_views_mouse_get_y(object?[] args)
         {
             var mouseY = InputHandler.MousePos.Y;
+            var windowHeight = window_get_height([]).Conv<float>();
+            var appHeight = (float)SurfaceManager.ApplicationHeight;
+
+            mouseY *= appHeight / windowHeight;
+
             var view = RoomManager.CurrentRoom.Views[0];
             var portY = view.PortPosition.Y;
             var portHeight = view.PortSize.Y;

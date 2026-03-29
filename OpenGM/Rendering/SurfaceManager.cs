@@ -1,4 +1,4 @@
-﻿using OpenGM.IO;
+using OpenGM.IO;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
@@ -397,7 +397,7 @@ public static class SurfaceManager
         if (UsingAppSurface) // TODO: only when "keep aspect ratio" is enabled
         {
             var w = (float)ApplicationWidth;
-            var h = (float)ApplicationWidth;
+            var h = (float)ApplicationHeight;
 
             var aspect = w / h;
             var hh = fbw / aspect;
