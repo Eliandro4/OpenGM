@@ -96,5 +96,8 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
 
         [GMLFunction("skeleton_get_bounds", GMLFunctionFlags.Stub)]
         public static object skeleton_get_bounds(object?[] args) => new List<object?>();
+
+        [GMLFunction("draw_skeleton_time", GMLFunctionFlags.Stub)]
+        public static object? draw_skeleton_time(object?[] args) => null;
     }
 }
