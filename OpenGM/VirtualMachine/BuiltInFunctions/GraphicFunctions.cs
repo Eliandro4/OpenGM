@@ -348,25 +348,28 @@ namespace OpenGM.VirtualMachine.BuiltInFunctions
             return InputHandler.MousePos.Y;
         }
 
-        // TODO: account for view that the mouse is currently in
         [GMLFunction("window_views_mouse_get_x")]
         public static object? window_views_mouse_get_x(object?[] args)
         {
             var mouseX = InputHandler.MousePos.X;
-            var windowWidth = window_get_width([]).Conv<int>();
-            var viewX = RoomManager.CurrentRoom.Views[0].ViewPosition.X;
-            var viewWidth = RoomManager.CurrentRoom.Views[0].ViewSize.X;
-            return CustomMath.FloorToInt(viewX + (mouseX * (viewWidth / windowWidth)));
+            var view = RoomManager.CurrentRoom.Views[0];
+            var portX = view.PortPosition.X;
+            var portWidth = view.PortSize.X;
+            var viewX = view.ViewPosition.X;
+            var viewWidth = view.ViewSize.X;
+            return CustomMath.FloorToInt(viewX + ((mouseX - portX) * (viewWidth / portWidth)));
         }
 
         [GMLFunction("window_views_mouse_get_y")]
         public static object? window_views_mouse_get_y(object?[] args)
-        { 
+        {
             var mouseY = InputHandler.MousePos.Y;
-            var windowHeight = window_get_height([]).Conv<int>();
-            var viewY = RoomManager.CurrentRoom.Views[0].ViewPosition.Y;
-            var viewHeight = RoomManager.CurrentRoom.Views[0].ViewSize.Y;
-            return CustomMath.FloorToInt(viewY + (mouseY * (viewHeight / windowHeight)));
+            var view = RoomManager.CurrentRoom.Views[0];
+            var portY = view.PortPosition.Y;
+            var portHeight = view.PortSize.Y;
+            var viewY = view.ViewPosition.Y;
+            var viewHeight = view.ViewSize.Y;
+            return CustomMath.FloorToInt(viewY + ((mouseY - portY) * (viewHeight / portHeight)));
         }
 
         // window_get_visible_rects
