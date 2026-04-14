@@ -241,7 +241,16 @@ internal class Entry
             GLFW.WindowHint(WindowHintBool.ScaleFramebuffer, false);
             GLFW.WindowHint(WindowHintBool.ScaleToMonitor, false);
 
-            window = new CustomWindow(gameSettings, nativeSettings);
+            try
+            {
+                window = new CustomWindow(gameSettings, nativeSettings);
+            }
+            catch (Exception ex)
+            {
+                DebugLog.LogError($"FATAL: Failed to create window: {ex.Message}");
+                DebugLog.LogError($"Stack: {ex.StackTrace}");
+                return;
+            }
         }
         else
         {
@@ -270,7 +279,16 @@ internal class Entry
         RoomManager.ChangeToWaitingRoom();
 
         DebugLog.LogInfo($"Starting main loop...");
-        window.Run();
+        try
+        {
+            window.Run();
+        }
+        catch (Exception ex)
+        {
+            DebugLog.LogError($"FATAL: Window failed to run: {ex.Message}");
+            DebugLog.LogError($"Stack: {ex.StackTrace}");
+            Environment.Exit(1);
+        }
 
         AudioManager.Dispose();
         InputHandler.IOStream?.Close();

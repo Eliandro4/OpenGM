@@ -57,8 +57,8 @@ public static class DebugLog
             return;
         }
 
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(message);
+Console.ForegroundColor = ConsoleColor.Red;
+        Console.Error.WriteLine(message);
         Console.ResetColor();
     }
 
