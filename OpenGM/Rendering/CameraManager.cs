@@ -40,8 +40,9 @@ public static class CameraManager
         float x_border = 0,
         float y_border = 0)
     {
-        var cam = new Camera { 
-            ViewX = room_x, 
+        var cam = new Camera
+        {
+            ViewX = room_x,
             ViewY = room_y,
             ViewWidth = width,
             ViewHeight = height,
@@ -56,8 +57,15 @@ public static class CameraManager
         return cam;
     }
 
-    public static void DestroyCamera(int camid)
+    public static void DestroyCamera(int id)
     {
-        return;
+        if (!_cameraDict.TryGetValue(id, out var cam))
+        {
+            return;
+        }
+
+        cam.ID = -1;
+
+        _cameraDict.Remove(id);
     }
 }

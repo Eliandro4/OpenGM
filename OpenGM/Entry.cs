@@ -233,7 +233,7 @@ internal class Entry
             var nativeSettings = NativeWindowSettings.Default;
             nativeSettings.WindowBorder = WindowBorder.Fixed;
             nativeSettings.ClientSize = GameLoader.GeneralInfo.DefaultWindowSize;
-            nativeSettings.APIVersion = new(4, 6); // just require latest version. we use dsa
+            nativeSettings.APIVersion = new(4, 2); // just require latest version. we use dsa
             nativeSettings.Flags = ContextFlags.Default;
 #if DEBUG_EXTRA
             nativeSettings.Flags = ContextFlags.Debug;
