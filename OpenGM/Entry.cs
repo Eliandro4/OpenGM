@@ -200,9 +200,18 @@ internal class Entry
             }
 
             Console.WriteLine($"Extracting game assets...");
-            using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
-            using var data = UndertaleIO.Read(stream);
-            GameConverter.ConvertGame(data);
+            try
+            {
+                using var stream = new FileStream(dataWinPath, FileMode.Open, FileAccess.Read);
+                using var data = UndertaleIO.Read(stream);
+                GameConverter.ConvertGame(data);
+            }
+            catch (Exception ex)
+            {
+                DebugLog.LogError($"FATAL: Failed to convert game: {ex.Message}");
+                DebugLog.LogError($"Stack: {ex.StackTrace}");
+                return;
+            }
         }
 
         //CollisionManager.colliders.Clear();
